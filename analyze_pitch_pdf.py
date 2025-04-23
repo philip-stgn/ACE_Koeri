@@ -1,6 +1,7 @@
 import base64
 from time import sleep
 
+import os
 from dotenv import load_dotenv
 from openai import OpenAI
 from openai.types.beta.threads import TextContentBlockParam, ImageURLContentBlockParam, ImageURLParam, \
@@ -12,7 +13,6 @@ load_dotenv()  # Lade Umgebungsvariablen aus .env-Datei
 from analyst_context import AnalystContext
 
 from openai.types.beta import Assistant
-
 import openai
 
 # --- Your PDF file path as a string ---
@@ -74,6 +74,9 @@ def load_pdf_into_model(cx: AnalystContext, pdf_path: str) -> str:
 
     assert run.status == "completed"
 
+
+def company_name(pdf_path):
+    return os.path.splitext(os.path.basename(pdf_path))[0]
 
 # --- Run it ---
 if __name__ == "__main__":
