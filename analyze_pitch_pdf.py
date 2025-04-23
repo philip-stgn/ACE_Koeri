@@ -1,55 +1,44 @@
 from dotenv import load_dotenv
 load_dotenv()  # Lade Umgebungsvariablen aus .env-Datei
-import fitz  # PyMuPDF
+
+import PyPDF2
 import openai
 
-# Deine OpenAI API-Schlüssel
+# --- Your PDF file path as a string ---
+pdf_path = "airbnb.pdf"  # <-- paste your path here
 
+# --- Set your OpenAI API key ---
+client = openai.OpenAI()  # <-- paste your key here
+
+# --- Extract text from the PDF ---
 def extract_text_from_pdf(pdf_path):
-    """
-    Extrahiert den Text aus einer PDF-Datei.
-    """
-    doc = fitz.open(pdf_path)
-    text = ""
-    for page_num in range(len(doc)):
-        page = doc.load_page(page_num)  # Lade die Seite
-        text += page.get_text()  # Extrahiere den Text
-    return text
+    with open(pdf_path, "rb") as file:
+        reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() or ""
+        return text.strip()
 
-def analyze_text_with_chatgpt(text):
-    """
-    Sendet den extrahierten Text an die ChatGPT API und analysiert ihn.
-    """
-    response = openai.ChatCompletion.create(
-        model="gpt-4o",  # Wähle das Modell aus, z.B. GPT-4
+
+# --- Summarize using OpenAI ---
+def summarize_text(text):
+    max_chars = 10000  # You can increase this if needed
+    if len(text) > max_chars:
+        text = text[:max_chars]
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
         messages=[
-            {"role": "system", "content": "Du bist ein Startup-Analyst."},
-            {"role": "user", "content": f"Bitte analysiere den folgenden Text aus einem Pitchdeck, gehe dabei insbesondere auf die Marketsize ein und gebe diese an:\n\n{text}"}
+            {"role": "system", "content": "You are a startup-analyst."},
+            {"role": "user", "content": f"Please analyze the foloowing text, in terms of investments in startups:\n\n{text}"}
         ]
     )
-    
-    # Rückgabe der Antwort von ChatGPT
-    return response['choices'][0]['message']['content']
 
-def main(pdf_path):
-    """
-    Hauptfunktion, die den Text extrahiert und die Analyse startet.
-    """
-    # Schritt 1: Extrahiere den Text aus der PDF
-    print(f"Extrahiere Text aus der PDF-Datei: {pdf_path}")
-    text = extract_text_from_pdf(pdf_path)
-    
-    # Schritt 2: Analysiere den extrahierten Text mit ChatGPT
-    print("Analysiere den extrahierten Text mit ChatGPT...")
-    analysis_result = analyze_text_with_chatgpt(text)
-    
-    # Schritt 3: Ausgabe der Analyse
-    print("Antwort von ChatGPT:")
-    print(analysis_result)
+    return response.choices[0].message.content
 
-# Beispiel-PDF-Datei (ersetze diesen Pfad mit dem Pfad zu deinem Pitchdeck)
-pdf_path = "airbnb.pdf"  # Ersetze dies mit dem Pfad zu deinem PDF-Dokument
-
-# Starte das Skript
+# --- Run it ---
 if __name__ == "__main__":
-    main(pdf_path)
+    text = extract_text_from_pdf(pdf_path)
+    summary = summarize_text(text)
+    print("\n📄 Summary:\n")
+    print(summary)
