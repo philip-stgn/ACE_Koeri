@@ -7,5 +7,5 @@ from openai.types.beta import Assistant, Thread
 @dataclass
 class AnalystContext:
     assistant: Assistant | None
-    client: OpenAI
     thread: Thread | None
+    client: OpenAI
