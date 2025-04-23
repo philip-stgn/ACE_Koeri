@@ -22,7 +22,7 @@ PDF_PATH = "airbnb.pdf"  # <-- paste your path here
 def create_assistant(cx: AnalystContext):
     assert cx.assistant is None
     cx.assistant = cx.client.beta.assistants.create(
-        model="gpt-4o",
+        model="gpt-4.1",
         instructions="You are an analyst expert with focus on startups. Your task is to consult investors with "
                      "realistic outlooks on future performance of startups.",
     )
@@ -34,7 +34,7 @@ def create_thread(cx: AnalystContext):
     assert cx.thread is None
     cx.thread = cx.client.beta.threads.create()
 
-def load_pdf_into_model(cx: AnalystContext, pdf_path: str) -> str:
+def load_pdf_into_model(cx: AnalystContext, pdf_path: str):
     content = [TextContentBlockParam(text="I received a slide deck for a new startup."
                 "Can you please take a look at it and summarize the most important key points?", type="text")]
 
