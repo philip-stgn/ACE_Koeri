@@ -1,44 +1,88 @@
+import base64
+from time import sleep
+
 from dotenv import load_dotenv
+from openai import OpenAI
+from openai.types.beta.threads import TextContentBlockParam, ImageURLContentBlockParam, ImageURLParam, \
+    ImageFileContentBlockParam, ImageFileParam
+from wand.image import Image
+
 load_dotenv()  # Lade Umgebungsvariablen aus .env-Datei
 
-import PyPDF2
+from analyst_context import AnalystContext
+
+from openai.types.beta import Assistant
+
 import openai
 
 # --- Your PDF file path as a string ---
-pdf_path = "airbnb.pdf"  # <-- paste your path here
-
-# --- Set your OpenAI API key ---
-client = openai.OpenAI()  # <-- paste your key here
+PDF_PATH = "airbnb.pdf"  # <-- paste your path here
 
 # --- Extract text from the PDF ---
-def extract_text_from_pdf(pdf_path):
-    with open(pdf_path, "rb") as file:
-        reader = PyPDF2.PdfReader(file)
-        text = ""
-        for page in reader.pages:
-            text += page.extract_text() or ""
-        return text.strip()
-
-
-# --- Summarize using OpenAI ---
-def summarize_text(text):
-    max_chars = 10000  # You can increase this if needed
-    if len(text) > max_chars:
-        text = text[:max_chars]
-
-    response = client.chat.completions.create(
+def create_assistant(cx: AnalystContext):
+    assert cx.assistant is None
+    cx.assistant = cx.client.beta.assistants.create(
         model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "You are a startup-analyst."},
-            {"role": "user", "content": f"Please analyze the foloowing text, in terms of investments in startups:\n\n{text}"}
-        ]
+        instructions="You are an analyst expert with focus on startups. Your task is to consult investors with "
+                     "realistic outlooks on future performance of startups.",
     )
 
-    return response.choices[0].message.content
+def delete_assistant(cx: AnalystContext):
+    cx.client.beta.assistants.delete(assistant_id=cx.assistant.id)
+
+def create_thread(cx: AnalystContext):
+    assert cx.thread is None
+    cx.thread = cx.client.beta.threads.create()
+
+def load_pdf_into_model(cx: AnalystContext, pdf_path: str) -> str:
+    content = [TextContentBlockParam(text="I received a slide deck for a new startup."
+                "Can you please take a look at it and summarize the most important key points?", type="text")]
+
+    with Image(filename=pdf_path) as pdf:
+        for i, page in enumerate(pdf.sequence):
+            with Image(page) as page_img:
+                # Prevent Content from becoming to long Current limit according to docs is 10
+                if len(content) >= 1:
+                    cx.client.beta.threads.messages.create(thread_id=cx.thread.id, role="user", content=content)
+                    content = []
+
+                img = page_img.make_blob("png")
+
+                # for some reason it only works if we write the file to disk first
+                with open("/tmp/output.png", "wb") as f:
+                    f.write(img)
+
+                with open("/tmp/output.png", "rb") as f:
+                    img_file_openai = cx.client.files.create(file=f, purpose="assistants")
+
+                cx.client.files.wait_for_processing(img_file_openai.id)
+
+                content.append(ImageFileContentBlockParam(type="image_file", image_file=ImageFileParam(file_id=img_file_openai.id)))
+
+                #content.append(
+                #   ImageURLContentBlockParam(type="image_url", image_url=ImageURLParam(url= f"data:image/jpeg;base64,{base64.b64encode(img)}")) )
+
+                #cx.client.beta.threads.messages.create(thread_id=cx.thread.id, role="user", content=json.dumps([{"type": "input_image", "image_url": f"data:image/png;base64,{base64.b64encode(img)}"}]))
+
+    cx.client.beta.threads.messages.create(thread_id=cx.thread.id, role="user", content=content)
+
+    run = cx.client.beta.threads.runs.create(thread_id=cx.thread.id, assistant_id=cx.assistant.id)
+
+    while run.status != "completed":
+        run = cx.client.beta.threads.runs.retrieve(run_id=run.id, thread_id=cx.thread.id)
+        sleep(1)
+
+    assert run.status == "completed"
+
 
 # --- Run it ---
 if __name__ == "__main__":
-    text = extract_text_from_pdf(pdf_path)
-    summary = summarize_text(text)
+    context = AnalystContext(None, None, None)
+    context.client = OpenAI()
+    create_assistant(context)
+    create_thread(context)
+
+    load_pdf_into_model(context, PDF_PATH)
     print("\n📄 Summary:\n")
-    print(summary)
+    print(context.client.beta.threads.messages.list(thread_id=context.thread.id, order="desc", limit=1).data[0].content)
+    delete_assistant(context)
