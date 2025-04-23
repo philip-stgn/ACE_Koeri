@@ -15,7 +15,7 @@ class ResearcherContext:
 
 
 def research(client: OpenAI, question: str) -> str:
-    res = cx.client.responses.create(
+    res = client.responses.create(
         input=question,
         model="gpt-4.1",
         instructions="You are a researcher focused on web research on startup companies. "
