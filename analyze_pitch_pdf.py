@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()  # Lade Umgebungsvariablen aus .env-Datei
 
+import os
 import PyPDF2
 import openai
 
@@ -36,9 +37,12 @@ def summarize_text(text):
 
     return response.choices[0].message.content
 
+def company_name(pdf_path):
+    return os.path.splitext(os.path.basename(pdf_path))[0]
+
 # --- Run it ---
 if __name__ == "__main__":
     text = extract_text_from_pdf(pdf_path)
     summary = summarize_text(text)
-    print("\n📄 Summary:\n")
+    print("\n Summary:\n")
     print(summary)
