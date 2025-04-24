@@ -1,10 +1,11 @@
 from dotenv import load_dotenv
 load_dotenv()
+
 import json
 import os
 from dataclasses import asdict
 import streamlit as st
-import time
+import tempfile
 
 from openai import OpenAI
 
@@ -16,7 +17,7 @@ from researcher import research
 from startup_evaluation import StartupQuestion, StartupEvaluation
 
 
-def evaluate_startup(pitch_deck_path: str, company_name: str):
+def evaluate_startup(pitch_deck_path: str, company_name: str) -> StartupEvaluation:
     cx = AnalystContext(None, None, client=OpenAI())
 
     create_assistant(cx)
@@ -73,28 +74,69 @@ def evaluate_startup(pitch_deck_path: str, company_name: str):
         final_score=float(total_score),
     )
 
+
     os.makedirs("results", exist_ok=True)
     with open(f"results/{company_name}.json", "w") as outfile:
         outfile.write(json.dumps(asdict(evaluation), indent=4))
 
     delete_assistant(cx)
 
+    return evaluation
+
 
 if __name__ == '__main__':
-    #evaluate_startup("examples/airbnb.pdf", "AirBnB")
+    last_evaluation: StartupEvaluation = StartupEvaluation("", "", [], [], "", 3.0)
+    st.title("Unicorn-Finder🦄")
 
-
-    #streamlit run main.py
-    st.title("Melgmir Unicorn Finder🦄")
-
-    st.header("Upload your pitchdeck ...")
+    st.header("Upload your pitch deck ...")
     company_name = st.text_input("Name of Company")
-    file = st.file_uploader("Upload a file", type=["txt", "csv", "jpg", "png"])
+    file = st.file_uploader("Upload a file", accept_multiple_files=False, type=["pdf"])
 
-    if st.button("Analyse pitchdeck ..."):
-        with st.spinner("Please wait..."):
-            time.sleep(2)  # Simulate loading
-            st.success("Finished!")
-            time.sleep(1)
-            st.switch_page("pages/evaluation_screen.py")
+
+    if st.button("Analyse pitch deck"):
+        enter_company: str = "Please enter the company name!"
+        if company_name == "":
+            st.markdown("<p style='color:red;'>Please enter the company name!</p>", unsafe_allow_html=True)
+        elif file is None:
+            st.markdown("<p style='color:red;'>Please upload a file!</p>", unsafe_allow_html=True)
+        else:
+            with st.spinner("Gathering and analyzing data. Please wait..."):
+                tmp = tempfile.NamedTemporaryFile()
+                data = file.read()
+                tmp.write(data)
+                last_evaluation = evaluate_startup(tmp.name, company_name)
+
+                # Large text area
+                st.markdown("<h1 style='text-align: center;'>Final Score</h1>", unsafe_allow_html=True)
+                st.markdown(
+                    f"""
+                    <div style="
+                        background-color:#74BBE3;
+                        border-radius:20px;
+                        padding:20px;
+                        height:200px;
+                        display:flex;
+                        justify-content:center;
+                        align-items:center;
+                        font-size:60px;
+                        text-align:center;
+                    ">
+                        <span style="font-weight:bold;">{last_evaluation.final_score}</span>    
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+                vert_space = '<div style="padding: 25px 5px;"></div>'
+                st.markdown(vert_space, unsafe_allow_html=True)
+                st.markdown(vert_space, unsafe_allow_html=True)
+
+                st.markdown(
+                    f"""
+                        <p>{last_evaluation.evaluation_text}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
 
