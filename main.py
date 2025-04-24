@@ -54,7 +54,7 @@ def evaluate_startup(pitch_deck_path: str, company_name: str):
 
     print("Asked all questions")
 
-    detailed_result = analyst_user_ask_question(cx, "With all this information, what is you detailed final rating for future investments in this company? Give a score out of 10 on each chosen category and show your reasoning. Please also try to support you reasoning by hard facts and numbers with sources.")
+    detailed_result = analyst_user_ask_question(cx, "With all this information, what is you detailed final rating for future investments in this company? Give a score out of 10 on each chosen category and show your reasoning. Please also try to support you reasoning by hard facts and numbers with sources. Please just reply with the summary itself.")
 
     print("Generated detailed report")
 
