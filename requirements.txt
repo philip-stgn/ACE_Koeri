@@ -1,0 +1,11 @@
+openai
+dotenv
+newsapi-python
+json
+dataclasses
+time
+tempfile
+streamlit
+os
+wand.image
+Imagemagick
