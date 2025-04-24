@@ -19,7 +19,7 @@ from openai.types.beta import Assistant
 import openai
 
 # --- Your PDF file path as a string ---
-PDF_PATH = "airbnb.pdf"  # <-- paste your path here
+PDF_PATH = "mint.pdf"  # <-- paste your path here
 
 # --- Extract text from the PDF ---
 def create_assistant(cx: AnalystContext):
@@ -32,7 +32,7 @@ def create_assistant(cx: AnalystContext):
                      "notes on additional fitting categories. Also keep in mind that the audience is a competent"
                      "investor who likes to see hard facts and numbers. When using such hard facts and numbers also"
                      "always disclose the source",
-        temperature=0.5,
+        temperature=0.2,
     )
 
 def delete_assistant(cx: AnalystContext):
@@ -44,15 +44,20 @@ def create_thread(cx: AnalystContext):
 
 def load_pdf_into_model(cx: AnalystContext, pdf_path: str):
     content = [TextContentBlockParam(text="I received a slide deck for a new startup."
-                "Can you please take a look at it and summarize the most important key points?", type="text")]
+                "Can you please take a look at it and create a comprehensive summary?"
+                " Pay special attention to hard facts like numbers.",
+                 type="text")
+    ]
 
     with Image(filename=pdf_path) as pdf:
         for i, page in enumerate(pdf.sequence):
             with Image(page) as page_img:
                 # Prevent Content from becoming to long Current limit according to docs is 10
-                if len(content) >= 1:
+                if len(content) >= 5:
                     cx.client.beta.threads.messages.create(thread_id=cx.thread.id, role="user", content=content)
                     content = []
+
+                print(f"Read page {i}")
 
                 img = page_img.make_blob("png")
 
@@ -106,8 +111,7 @@ def company_name(pdf_path):
 
 # --- Run it ---
 if __name__ == "__main__":
-    context = AnalystContext(None, None, None)
-    context.client = OpenAI()
+    context = AnalystContext(None, None, client=OpenAI())
     create_assistant(context)
     create_thread(context)
 
