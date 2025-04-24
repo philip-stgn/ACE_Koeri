@@ -85,23 +85,3 @@ st.markdown("""
         <p>Innovating stuff</p>
     </div>
 """, unsafe_allow_html=True)
-
-
-
-#st.text("Einfacher Text")
-#st.markdown("**Fett**, *kursiv*, `Code`")
-
-#st.header("🔘 Auswahl-Elemente")
-#option = st.selectbox("Wähle eine Option", ["Option A", "Option B", "Option C"])
-#multi_option = st.multiselect("Mehrfachauswahl", ["A", "B", "C", "D"])
-
-#st.header("📸 Bilder")
-#st.image("https://placekitten.com/300/200", caption="Ein süßes Kätzchen")
-
-#st.header("Analyse")
-#import pandas as pd
-#import numpy as np
-
-#data = pd.DataFrame(np.random.randn(10, 2), columns=["A", "B"])
-#st.line_chart(data)
-#st.bar_chart(data)

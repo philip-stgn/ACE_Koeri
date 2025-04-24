@@ -75,5 +75,5 @@ if __name__ == '__main__':
             time.sleep(2)  # Simulate loading
             st.success("Finished!")
             time.sleep(1)
-            st.switch_page("/pages/evaluation_screen.py")
+            st.switch_page("pages/evaluation_screen.py")
 
