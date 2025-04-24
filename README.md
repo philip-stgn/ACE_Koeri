@@ -11,7 +11,7 @@ Meet the team:
 - Jannick W.
 
 ## What We're Trying to Do
-We want to make it easier to spot up and coming startups by using AI to:
+We want to make it easier to spot up-and-coming startups by using AI to:
 - Catch fresh trends and news
 - Gather relevant info fast
 - Show it all in a super clear and useful way
@@ -30,7 +30,7 @@ Here's how we tackled it:
 - Let AgenticAIs help with expert-level evaluation
 
 ## Our Approach
-We focused on automating the tough stuff:
+We focused on automation:
 - Analyzing pitch decks
 - Real-time news tracking
 - Smart scoring with AI
@@ -38,9 +38,9 @@ We focused on automating the tough stuff:
 
 ## Why It’s Useful
 **If you're an investor:**
-- Get a quick overview
+- Get a overview of multiple startups
 - Stay in the loop with real-time insights
-- Save tons of time reviewing startups
+- Save tons of time
 
 **If you're a founder:**
 - Speed up your funding journey
@@ -48,7 +48,9 @@ We focused on automating the tough stuff:
 
 ## Dependencies
 Check out the [`requirements.txt`](./requirements.txt) file for all the packages we used.
+
 ---
+
 ![Q-Hack_ACE](https://github.com/user-attachments/assets/df988853-3ed5-4503-859f-f847eada6c1b)
 
 # <p align="center"> ACE Alternatives Challenge @ Q-Hack 2025 </p>
