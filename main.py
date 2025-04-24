@@ -1,11 +1,10 @@
 from dotenv import load_dotenv
-
 load_dotenv()
+
 import json
 import os
 from dataclasses import asdict
 import streamlit as st
-import time
 import tempfile
 
 from openai import OpenAI
@@ -16,7 +15,6 @@ analyst_user_message
 from news_api import search_by_company_name
 from researcher import research
 from startup_evaluation import StartupQuestion, StartupEvaluation
-from pages import evaluation_screen
 
 
 def evaluate_startup(pitch_deck_path: str, company_name: str) -> StartupEvaluation:
@@ -87,28 +85,58 @@ def evaluate_startup(pitch_deck_path: str, company_name: str) -> StartupEvaluati
 
 
 if __name__ == '__main__':
-    with open("results/AirBnB.json", "rt") as f:
-        json_data = f.read()
-    #evaluate_startup("examples/airbnb.pdf", "AirBnB")
+    last_evaluation: StartupEvaluation = StartupEvaluation("", "", [], [], "", 3.0)
+    st.title("Unicorn-Finder🦄")
 
-    #streamlit run main.py
-        st.title("Melgmir Unicorn Finder🦄")
-
-        st.header("Upload your pitchdeck ...")
-        company_name = st.text_input("Name of Company")
-        file = st.file_uploader("Upload a file", accept_multiple_files=False, type=["pdf"])
+    st.header("Upload your pitch deck ...")
+    company_name = st.text_input("Name of Company")
+    file = st.file_uploader("Upload a file", accept_multiple_files=False, type=["pdf"])
 
 
-        if st.button("Analyse pitchdeck ..."):
-            with st.spinner("Please wait..."):
+    if st.button("Analyse pitch deck"):
+        enter_company: str = "Please enter the company name!"
+        if company_name == "":
+            st.markdown("<p style='color:red;'>Please enter the company name!</p>", unsafe_allow_html=True)
+        elif file is None:
+            st.markdown("<p style='color:red;'>Please upload a file!</p>", unsafe_allow_html=True)
+        else:
+            with st.spinner("Gathering and analyzing data. Please wait..."):
                 tmp = tempfile.NamedTemporaryFile()
                 data = file.read()
                 tmp.write(data)
-                #evaluation_screen.last_evaluation = json.loads(json_data)
-                st.session_state.last_evaluation = json.loads(json_data)
-                #evaluation_screen.last_evaluation = evaluate_startup(tmp.name, company_name)
-                st.success("Finished!")
-                time.sleep(1)
-                st.switch_page("pages/evaluation_screen.py")
-                st.rerun()
+                last_evaluation = evaluate_startup(tmp.name, company_name)
+
+                # Large text area
+                st.markdown("<h1 style='text-align: center;'>Final Score</h1>", unsafe_allow_html=True)
+                st.markdown(
+                    f"""
+                    <div style="
+                        background-color:#74BBE3;
+                        border-radius:20px;
+                        padding:20px;
+                        height:200px;
+                        display:flex;
+                        justify-content:center;
+                        align-items:center;
+                        font-size:60px;
+                        text-align:center;
+                    ">
+                        <span style="font-weight:bold;">{last_evaluation.final_score}</span>    
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+                vert_space = '<div style="padding: 25px 5px;"></div>'
+                st.markdown(vert_space, unsafe_allow_html=True)
+                st.markdown(vert_space, unsafe_allow_html=True)
+
+                st.markdown(
+                    f"""
+                        <p>{last_evaluation.evaluation_text}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
 
