@@ -1,5 +1,9 @@
 import streamlit as st
 
+from startup_evaluation import StartupEvaluation
+
+st.session_state.last_evaluation = StartupEvaluation("", "", [], [], "", 0.0)
+
 st.title("Evaluation")
 # Large text area
 st.markdown("<h1 style='text-align: center;'>Final Score</h1>", unsafe_allow_html=True)
@@ -17,7 +21,7 @@ st.markdown(
         font-size:60px;
         text-align:center;
     ">
-        {"<span font-weight:bold;> 6/10 </span>"}    
+        <span style="font-weight:bold;">{st.session_state.last_evaluation.final_score}</span>    
     </div>
     """,
     unsafe_allow_html=True

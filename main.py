@@ -1,10 +1,12 @@
 from dotenv import load_dotenv
+
 load_dotenv()
 import json
 import os
 from dataclasses import asdict
 import streamlit as st
 import time
+import tempfile
 
 from openai import OpenAI
 
@@ -14,9 +16,10 @@ analyst_user_message
 from news_api import search_by_company_name
 from researcher import research
 from startup_evaluation import StartupQuestion, StartupEvaluation
+from pages import evaluation_screen
 
 
-def evaluate_startup(pitch_deck_path: str, company_name: str):
+def evaluate_startup(pitch_deck_path: str, company_name: str) -> StartupEvaluation:
     cx = AnalystContext(None, None, client=OpenAI())
 
     create_assistant(cx)
@@ -73,28 +76,39 @@ def evaluate_startup(pitch_deck_path: str, company_name: str):
         final_score=float(total_score),
     )
 
+
     os.makedirs("results", exist_ok=True)
     with open(f"results/{company_name}.json", "w") as outfile:
         outfile.write(json.dumps(asdict(evaluation), indent=4))
 
     delete_assistant(cx)
 
+    return evaluation
+
 
 if __name__ == '__main__':
+    with open("results/AirBnB.json", "rt") as f:
+        json_data = f.read()
     #evaluate_startup("examples/airbnb.pdf", "AirBnB")
 
-
     #streamlit run main.py
-    st.title("Melgmir Unicorn Finder🦄")
+        st.title("Melgmir Unicorn Finder🦄")
 
-    st.header("Upload your pitchdeck ...")
-    company_name = st.text_input("Name of Company")
-    file = st.file_uploader("Upload a file", type=["txt", "csv", "jpg", "png"])
+        st.header("Upload your pitchdeck ...")
+        company_name = st.text_input("Name of Company")
+        file = st.file_uploader("Upload a file", accept_multiple_files=False, type=["pdf"])
 
-    if st.button("Analyse pitchdeck ..."):
-        with st.spinner("Please wait..."):
-            time.sleep(2)  # Simulate loading
-            st.success("Finished!")
-            time.sleep(1)
-            st.switch_page("pages/evaluation_screen.py")
+
+        if st.button("Analyse pitchdeck ..."):
+            with st.spinner("Please wait..."):
+                tmp = tempfile.NamedTemporaryFile()
+                data = file.read()
+                tmp.write(data)
+                #evaluation_screen.last_evaluation = json.loads(json_data)
+                st.session_state.last_evaluation = json.loads(json_data)
+                #evaluation_screen.last_evaluation = evaluate_startup(tmp.name, company_name)
+                st.success("Finished!")
+                time.sleep(1)
+                st.switch_page("pages/evaluation_screen.py")
+                st.rerun()
 
