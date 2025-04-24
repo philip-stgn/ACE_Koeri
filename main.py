@@ -1,10 +1,14 @@
+from dotenv import load_dotenv
+load_dotenv()
 import json
+import streamlit as st
+import time
 
 from openai import OpenAI
 
 from analyst_context import AnalystContext
 from analyze_pitch_pdf import create_assistant, create_thread, load_pdf_into_model, delete_assistant, analyst_user_ask_question, \
-    analyst_user_message
+analyst_user_message
 from news_api import search_by_company_name
 from researcher import research
 
@@ -57,5 +61,19 @@ def evaluate_startup(pitch_deck_path: str, company_name: str):
 
 
 if __name__ == '__main__':
-    evaluate_startup("mint.pdf", "Mint")
+    #evaluate_startup("mint.pdf", "Mint")
+
+    #streamlit run main.py
+    st.title("Melgmir Unicorn Finder🦄")
+
+    st.header("Upload your pitchdeck ...")
+    company_name = st.text_input("Name of Company")
+    file = st.file_uploader("Upload a file", type=["txt", "csv", "jpg", "png"])
+
+    if st.button("Analyse pitchdeck ..."):
+        with st.spinner("Please wait..."):
+            time.sleep(2)  # Simulate loading
+            st.success("Finished!")
+            time.sleep(1)
+            st.switch_page("pages/evaluation_screen.py")
 
