@@ -1,3 +1,54 @@
+# Hackathon Project – Team Karlsruher Institut Für Kœri
+
+Hey there! Welcome to our hackathon project repo. We're **Team Karlsruher Institut Für Kœri**, and this is our AI-powered solution for smarter startup analysis.
+
+## Who We Are
+Meet the team:
+- Torben G.
+- Ella S.
+- Philip S.
+- Benedikt K.
+- Jannick W.
+
+## What We're Trying to Do
+We want to make it easier to spot up and coming startups by using AI to:
+- Catch fresh trends and news
+- Gather relevant info fast
+- Show it all in a super clear and useful way
+
+<!-- ## The Problem
+Right now, startup data is:
+- All over the place
+- Sometimes biased or hard to find
+- Not easy to sort or act on -->
+
+## What We Built
+Here's how we tackled it:
+- Pulled data from pitch decks using OpenAI Vision
+- Crawled through reliable news sources
+- Used GPT for deeper web research
+- Let AgenticAIs help with expert-level evaluation
+
+## Our Approach
+We focused on automating the tough stuff:
+- Analyzing pitch decks
+- Real-time news tracking
+- Smart scoring with AI
+- Portfolio advice powered by autonomous agents
+
+## Why It’s Useful
+**If you're an investor:**
+- Get a quick overview
+- Stay in the loop with real-time insights
+- Save tons of time reviewing startups
+
+**If you're a founder:**
+- Speed up your funding journey
+- Understand your competition better
+
+## Dependencies
+Check out the [`requirements.txt`](./requirements.txt) file for all the packages we used.
+---
 ![Q-Hack_ACE](https://github.com/user-attachments/assets/df988853-3ed5-4503-859f-f847eada6c1b)
 
 # <p align="center"> ACE Alternatives Challenge @ Q-Hack 2025 </p>
