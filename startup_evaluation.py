@@ -6,10 +6,12 @@ class StartupQuestion:
     question: str
     answer: str
 
+
 @dataclass
 class CategoryScore:
     category: str
     score: float
+
 
 @dataclass
 class StartupEvaluation:
@@ -19,5 +21,3 @@ class StartupEvaluation:
     category_scores: [CategoryScore]
     evaluation_text: str
     final_score: float
-
-
